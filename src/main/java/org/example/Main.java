@@ -1,17 +1,55 @@
 package org.example;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-public class Main {
-    public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class Main {
+    private static final Logger logger = LogManager.getLogger(Main.class);
+
+    public static void main(String[] args) {
+        logger.info("Starting Kafka Producer and Consumer...");
+        initProducer();
+        initConsumer();
+    }
+
+    private static void initProducer() {
+        for (int i = 0; i < 4; i++) {
+            Producer producer = new Producer();
+            logger.info("Initializing Producer-{}", i);
+            sendMultipleMessages(producer, i);
         }
+    }
+
+    private static void sendMultipleMessages(Producer producer, int id) {
+        AtomicInteger counter = new AtomicInteger(0);
+        AtomicInteger successCounter = new AtomicInteger(0);
+        AtomicInteger failCounter = new AtomicInteger(0);
+
+        logger.info("Producer-{} started sending messages...", id);
+
+        for (int i = 0; i < 10; i++) {
+            String message = "Message-" + id + "-" + counter.getAndIncrement();
+            boolean status = producer.send("my_first", message);
+
+            if (status) {
+                successCounter.incrementAndGet();
+            } else {
+                failCounter.incrementAndGet();
+            }
+        }
+
+        producer.flush();
+        producer.close();
+
+        logger.info("Producer-{} completed. Success: {}, Fail: {}", id, successCounter.get(), failCounter.get());
+    }
+
+    private static void initConsumer() {
+        Consumer consumer1 = new Consumer("1");
+        logger.info("Initializing Consumer-1...");
+        Thread thread1 = new Thread(() -> consumer1.consume("my_first"));
+        thread1.start();
     }
 }
