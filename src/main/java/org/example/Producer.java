@@ -47,12 +47,8 @@ public class Producer {
             });
 
             latch.await(); // Wait for the callback to complete
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            logger.error("Producer was interrupted while sending message to topic: [{}]", topic, e);
-            return false;
         } catch (Exception ex) {
-            logger.error("Unexpected error while sending message to topic: [{}], message: [{}]", topic, message, ex);
+//            logger.error("Unexpected error while sending message to topic: [{}], message: [{}]", topic, message, ex);
             return false;
         }
         return isSuccess[0];

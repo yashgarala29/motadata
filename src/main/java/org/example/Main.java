@@ -38,10 +38,13 @@ public class Main {
             } else {
                 failCounter.incrementAndGet();
             }
+            if(i==8){
+
+                producer.flush();
+                producer.close();
+            }
         }
 
-        producer.flush();
-        producer.close();
 
         logger.info("Producer-{} completed. Success: {}, Fail: {}", id, successCounter.get(), failCounter.get());
     }
