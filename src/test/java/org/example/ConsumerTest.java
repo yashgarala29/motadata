@@ -1,37 +1,36 @@
 package org.example;
 
-
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.junit.jupiter.api.Test;
-import static org.mockito.Mockito.*;
 
 import java.time.Duration;
 import java.util.Collections;
 import java.util.logging.Logger;
 
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ConsumerTest {
-    @Mock
-    private KafkaConsumer<String, String> kafkaConsumer;
 
     @Mock
-    private Logger logger;
+    private KafkaConsumer<String, String> kafkaConsumer;  // Mocked Kafka Consumer
+
+    @Mock
+    private Logger logger;  // Mocked Logger
 
     @InjectMocks
-    private Consumer consumer;
+    private Consumer consumer;  // Consumer instance with injected mocks
 
     @BeforeEach
     void setUp() {
-        consumer = new Consumer("test-consumer");
-        consumer = spy(consumer);
-
+        MockitoAnnotations.openMocks(this); // Ensure mocks are initialized
     }
 
     @Test
@@ -51,10 +50,9 @@ public class ConsumerTest {
 
         testThread.interrupt();
 
+        // Verify Kafka consumer behavior
         verify(kafkaConsumer, atLeastOnce()).subscribe(Collections.singletonList("test-topic"));
-
         verify(kafkaConsumer, atLeastOnce()).poll(Duration.ofMillis(100));
-
         verify(kafkaConsumer, atLeastOnce()).close();
     }
 }
